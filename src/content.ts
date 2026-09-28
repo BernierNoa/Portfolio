@@ -3,11 +3,9 @@
 
 export const TODO = (label: string) => `[TODO: ${label}]`
 
+// E-mail, LinkedIn et CV sont définis dans components/Contact.tsx
 export const links = {
   github: 'https://github.com/BernierNoa',
-  email: TODO('email'), // ex: 'noa@exemple.fr'
-  linkedin: TODO('url LinkedIn'),
-  cv: TODO('url du CV en PDF'),
 }
 
 export const isPlaceholder = (value: string) => value.startsWith('[TODO')

@@ -1,22 +1,42 @@
-import { useState } from 'react'
-import { isPlaceholder, links } from '../content'
-import { Arrow, Container, Grid, SectionHead, Text } from './ui'
+import { useEffect, useRef, useState } from 'react'
+import { links } from '../content'
+import { Arrow, Container, Grid, SectionHead } from './ui'
+
+// L'adresse est assemblée au rendu pour ne pas apparaître en clair dans le source.
+const EMAIL_USER = 'berniernoa24'
+const EMAIL_DOMAIN = 'gmail.com'
+
+const LINKEDIN = 'https://www.linkedin.com/in/noa-bernier-1ba8a3304/'
+
+// Passer à true une fois public/cv-noa-bernier.pdf ajouté, sinon le lien reste masqué.
+const CV_READY = false
+const CV_HREF = '/cv-noa-bernier.pdf'
+
+type CopyState = 'idle' | 'copied' | 'failed'
 
 export function Contact() {
-  const [copied, setCopied] = useState(false)
-  const emailReady = !isPlaceholder(links.email)
+  const email = `${EMAIL_USER}@${EMAIL_DOMAIN}`
+  const [copyState, setCopyState] = useState<CopyState>('idle')
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
+
+  useEffect(() => () => clearTimeout(timer.current), [])
 
   const copy = async () => {
-    if (!emailReady) return
-    await navigator.clipboard.writeText(links.email)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1800)
+    let next: CopyState = 'copied'
+    try {
+      // lève aussi si navigator.clipboard est absent (contexte non sécurisé)
+      await navigator.clipboard.writeText(email)
+    } catch {
+      next = 'failed'
+    }
+    setCopyState(next)
+    clearTimeout(timer.current)
+    timer.current = setTimeout(() => setCopyState('idle'), next === 'copied' ? 1800 : 4000)
   }
 
-  const others = [
-    { label: 'GitHub', href: links.github },
-    { label: 'LinkedIn', href: links.linkedin },
-    { label: 'CV (PDF)', href: links.cv },
+  const external = [
+    { label: 'GitHub', srLabel: ' de Noa Bernier', href: links.github },
+    { label: 'Noa Bernier', srLabel: ' sur LinkedIn', href: LINKEDIN },
   ]
 
   return (
@@ -33,41 +53,39 @@ export function Contact() {
           </h2>
 
           <div className="mt-10 flex flex-wrap items-baseline gap-x-6 gap-y-3">
-            {emailReady ? (
-              <a href={`mailto:${links.email}`} className="link-rest text-[clamp(1.4rem,3vw,2.5rem)] tracking-[-0.02em]">
-                {links.email}
-              </a>
-            ) : (
-              <span className="text-[clamp(1.4rem,3vw,2.5rem)]">
-                <Text value={links.email} />
-              </span>
-            )}
+            <a href={`mailto:${email}`} className="link-rest text-[clamp(1.4rem,3vw,2.5rem)] tracking-[-0.02em]">
+              {email}
+            </a>
             <button
               type="button"
               onClick={copy}
-              disabled={!emailReady}
-              className="label border border-ink px-3 py-2 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink"
+              className="label border border-ink px-3 py-2 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
             >
-              <span aria-live="polite">{copied ? 'Copié ✓' : 'Copier'}</span>
+              <span aria-live="polite">
+                {copyState === 'copied' ? 'Copié ✓' : copyState === 'failed' ? 'Copie impossible, sélectionne l’adresse' : 'Copier'}
+              </span>
+              {copyState === 'idle' && <span className="sr-only"> l’adresse e-mail</span>}
             </button>
           </div>
         </div>
 
         <Grid className="mt-auto gap-y-10 pt-28 pb-8">
           <ul className="col-span-4 flex flex-wrap gap-x-8 gap-y-2 md:col-span-6">
-            {others.map((o) =>
-              isPlaceholder(o.href) ? (
-                <li key={o.label} className="text-lg">
-                  {o.label} <Text value={o.href} />
-                </li>
-              ) : (
-                <li key={o.label}>
-                  <a href={o.href} target="_blank" rel="noreferrer" className="link group inline-flex items-center gap-1.5 text-lg">
-                    {o.label}
-                    <Arrow className="transition-transform duration-500 ease-out-quint group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                </li>
-              ),
+            {external.map((o) => (
+              <li key={o.href}>
+                <a href={o.href} target="_blank" rel="noopener noreferrer" className="link group inline-flex items-center gap-1.5 text-lg">
+                  {o.label}
+                  <span className="sr-only">{o.srLabel} (nouvel onglet)</span>
+                  <Arrow className="transition-transform duration-500 ease-out-quint group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </a>
+              </li>
+            ))}
+            {CV_READY && (
+              <li>
+                <a href={CV_HREF} download className="link text-lg">
+                  CV (PDF)<span className="sr-only"> de Noa Bernier, téléchargement</span>
+                </a>
+              </li>
             )}
           </ul>
 
