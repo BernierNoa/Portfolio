@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { links } from '../content'
 import { useLang } from '../i18n/context'
 import { Arrow, Container, Grid, SectionHead } from './ui'
@@ -13,11 +13,14 @@ const LINKEDIN = 'https://www.linkedin.com/in/noa-bernier-1ba8a3304/'
 const CV_READY = false
 const CV_HREF = '/cv-noa-bernier.pdf'
 
+const noopSubscribe = () => () => {}
+
 type CopyState = 'idle' | 'copied' | 'failed'
 
 export function Contact() {
   const { t } = useLang()
-  const email = `${EMAIL_USER}@${EMAIL_DOMAIN}`
+  // Vide au pré-rendu et à l'hydratation, assemblée ensuite : le HTML statique ne contient jamais l'adresse.
+  const email = useSyncExternalStore(noopSubscribe, () => `${EMAIL_USER}@${EMAIL_DOMAIN}`, () => '')
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -27,7 +30,7 @@ export function Contact() {
     let next: CopyState = 'copied'
     try {
       // lève aussi si navigator.clipboard est absent (contexte non sécurisé)
-      await navigator.clipboard.writeText(email)
+      await navigator.clipboard.writeText(`${EMAIL_USER}@${EMAIL_DOMAIN}`)
     } catch {
       next = 'failed'
     }
@@ -55,9 +58,15 @@ export function Contact() {
           </h2>
 
           <div className="mt-10 flex flex-wrap items-baseline gap-x-6 gap-y-3">
-            <a href={`mailto:${email}`} className="link-rest text-[clamp(1.4rem,3vw,2.5rem)] tracking-[-0.02em]">
-              {email}
-            </a>
+            {email ? (
+              <a href={`mailto:${email}`} className="link-rest text-[clamp(1.4rem,3vw,2.5rem)] tracking-[-0.02em]">
+                {email}
+              </a>
+            ) : (
+              <span aria-hidden className="text-[clamp(1.4rem,3vw,2.5rem)] tracking-[-0.02em] text-ink-3">
+                ••••••••••••••••••••••
+              </span>
+            )}
             <button
               type="button"
               onClick={copy}
@@ -94,7 +103,7 @@ export function Contact() {
           <div className="label col-span-4 flex flex-col justify-end gap-1 md:col-span-6 md:items-end md:text-right">
             <span>{t.contact.font}</span>
             <span>
-              © {new Date().getFullYear()} Noa Bernier ·{' '}
+              © <span suppressHydrationWarning>{new Date().getFullYear()}</span> Noa Bernier ·{' '}
               <a href="#intro" className="link text-ink">
                 {t.contact.top}
               </a>

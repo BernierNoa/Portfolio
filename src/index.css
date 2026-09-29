@@ -68,6 +68,17 @@
   }
 }
 
+/* Icône du bouton de thème : soleil en sombre (action : passer au clair), lune en clair */
+.theme-icon-sun {
+  display: none;
+}
+:root[data-theme='dark'] .theme-icon-sun {
+  display: inline;
+}
+:root[data-theme='dark'] .theme-icon-moon {
+  display: none;
+}
+
 /* Petite étiquette mono qui structure toute la page */
 @utility label {
   font-family: var(--font-mono);

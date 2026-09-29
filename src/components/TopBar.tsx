@@ -1,31 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { useActiveSection, useParisTime, usePrefersReducedMotion, useTheme } from '../hooks'
 import { useLang } from '../i18n/context'
+import { pathFor } from '../i18n/paths'
 import { Container } from './ui'
 
 const ids = ['intro', 'projets', 'stack', 'parcours', 'contact']
 
-function ThemeIcon({ dark }: { dark: boolean }) {
+function ThemeIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
-      {dark ? (
-        <>
-          <circle cx="8" cy="8" r="2.75" />
-          <path d="M8 1.5v1.75M8 12.75v1.75M1.5 8h1.75M12.75 8h1.75M3.4 3.4l1.25 1.25M11.35 11.35l1.25 1.25M3.4 12.6l1.25-1.25M11.35 4.65l1.25-1.25" />
-        </>
-      ) : (
-        <path d="M13.25 9.6A5.6 5.6 0 0 1 6.4 2.75a5.6 5.6 0 1 0 6.85 6.85Z" />
-      )}
+      <g className="theme-icon-sun">
+        <circle cx="8" cy="8" r="2.75" />
+        <path d="M8 1.5v1.75M8 12.75v1.75M1.5 8h1.75M12.75 8h1.75M3.4 3.4l1.25 1.25M11.35 11.35l1.25 1.25M3.4 12.6l1.25-1.25M11.35 4.65l1.25-1.25" />
+      </g>
+      <path className="theme-icon-moon" d="M13.25 9.6A5.6 5.6 0 0 1 6.4 2.75a5.6 5.6 0 1 0 6.85 6.85Z" />
     </svg>
   )
 }
+
 export function TopBar() {
-  const { lang, setLang, t } = useLang()
+  const { lang, t } = useLang()
   const [theme, toggleTheme] = useTheme()
   const sections = ids.map((id, i) => ({
     id,
     label: [t.nav.intro, t.nav.projects, t.nav.stack, t.nav.background, t.nav.contact][i],
   }))
+  const other = lang === 'fr' ? 'en' : 'fr'
   const active = useActiveSection(ids)
   const time = useParisTime()
   const reduced = usePrefersReducedMotion()
@@ -90,22 +90,30 @@ export function TopBar() {
             <span className="hidden sm:inline">{t.nav.city}</span>
             {time}
           </p>
-          <button
-            type="button"
-            lang={t.controls.langCode}
+          {/* vrai lien vers l'autre page pré-rendue ; on garde la section en cours et on mémorise le choix */}
+          <a
+            href={`${pathFor(other)}${active === 'intro' ? '' : `#${active}`}`}
+            hrefLang={other}
+            lang={other}
             aria-label={t.controls.langLabel}
-            onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')}
+            onClick={() => {
+              try {
+                window.localStorage.setItem('lang', other)
+              } catch {
+                /* le choix vaut alors pour cette visite seulement */
+              }
+            }}
             className="label grid h-8 min-w-8 place-items-center border border-line px-1.5 text-ink transition-colors duration-300 hover:border-ink"
           >
             {t.controls.langText}
-          </button>
+          </a>
           <button
             type="button"
             aria-label={theme === 'dark' ? t.controls.toLight : t.controls.toDark}
             onClick={toggleTheme}
             className="grid size-8 place-items-center border border-line text-ink transition-colors duration-300 hover:border-ink"
           >
-            <ThemeIcon dark={theme === 'dark'} />
+            <ThemeIcon />
           </button>
         </div>
       </Container>

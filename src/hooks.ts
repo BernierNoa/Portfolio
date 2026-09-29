@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 /** Passe à true la première fois que l'élément entre dans le viewport. */
 export function useInView<T extends HTMLElement>(margin = '0px 0px -12% 0px') {
@@ -46,51 +46,70 @@ export function useActiveSection(ids: string[]) {
   return active
 }
 
-/** Heure locale à Amiens, rafraîchie chaque seconde. */
-export function useParisTime() {
-  const format = () =>
-    new Intl.DateTimeFormat('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      timeZone: 'Europe/Paris',
-    }).format(new Date())
+/** Au pré-rendu et à l'hydratation : l'heure du build serait fausse, on affiche ce texte neutre. */
+export const CLOCK_PLACEHOLDER = '--:--:--'
 
-  const [time, setTime] = useState(format)
+const parisClock = new Intl.DateTimeFormat('fr-FR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZone: 'Europe/Paris',
+})
 
-  useEffect(() => {
-    const id = setInterval(() => setTime(format()), 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  return time
+const subscribeClock = (onChange: () => void) => {
+  const id = setInterval(onChange, 1000)
+  return () => clearInterval(id)
 }
 
+/** Heure locale à Amiens, rafraîchie chaque seconde. */
+export function useParisTime() {
+  return useSyncExternalStore(subscribeClock, () => parisClock.format(new Date()), () => CLOCK_PLACEHOLDER)
+}
+
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
+
+/** false au pré-rendu et à l'hydratation, puis la vraie valeur (sans erreur d'hydratation). */
 export function usePrefersReducedMotion() {
-  const [reduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  return reduced
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(REDUCED_MOTION)
+      mq.addEventListener('change', onChange)
+      return () => mq.removeEventListener('change', onChange)
+    },
+    () => window.matchMedia(REDUCED_MOTION).matches,
+    () => false,
+  )
 }
 
 export type Theme = 'light' | 'dark'
 
 const THEME_COLORS: Record<Theme, string> = { light: '#FAFAF7', dark: '#121211' }
+const themeListeners = new Set<() => void>()
+
+const readTheme = (): Theme => (document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light')
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme])
+  themeListeners.forEach((l) => l())
 }
 
-/** Thème courant (posé avant le rendu par le script de index.html). Suit le système tant que rien n'est choisi. */
+/**
+ * Thème courant, posé avant le rendu par le script de index.html (la source de vérité est l'attribut
+ * data-theme). 'light' au pré-rendu. Suit le système tant que rien n'est choisi.
+ */
 export function useTheme() {
-  const [theme, setThemeState] = useState<Theme>(() =>
-    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+  const theme = useSyncExternalStore(
+    (onChange) => {
+      themeListeners.add(onChange)
+      return () => themeListeners.delete(onChange)
+    },
+    readTheme,
+    () => 'light' as Theme,
   )
 
   useEffect(() => {
-    applyTheme(theme)
-  }, [theme])
-
-  useEffect(() => {
+    applyTheme(readTheme())
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const onChange = (e: MediaQueryListEvent) => {
       try {
@@ -98,7 +117,7 @@ export function useTheme() {
       } catch {
         /* stockage bloqué : on suit le système */
       }
-      setThemeState(e.matches ? 'dark' : 'light')
+      applyTheme(e.matches ? 'dark' : 'light')
     }
     mq.addEventListener('change', onChange)
     return () => mq.removeEventListener('change', onChange)
@@ -106,7 +125,7 @@ export function useTheme() {
 
   const toggle = () => {
     const next: Theme = theme === 'dark' ? 'light' : 'dark'
-    setThemeState(next)
+    applyTheme(next)
     try {
       window.localStorage.setItem('theme', next)
     } catch {

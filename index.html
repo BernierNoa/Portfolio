@@ -6,15 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FAFAF7" />
     <script>
-      // thème choisi, sinon celui du système, appliqué avant le premier rendu
-      try {
-        var t = localStorage.getItem('theme')
-        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        document.documentElement.dataset.theme = t
-      } catch (e) {
-        document.documentElement.dataset.theme = 'light'
-      }
+      // Exécuté avant le premier rendu. Thème : choix mémorisé, sinon réglage du système.
+      // Langue : `/` est en français. On renvoie vers `/en/` seulement sur choix explicite
+      // (?lang=en ou bouton EN mémorisé), jamais d'après la langue du navigateur : un robot
+      // annonce souvent « en-US » et ne doit pas être détourné de la page française.
+      ;(function () {
+        var root = document.documentElement
+        try {
+          var theme = localStorage.getItem('theme')
+          if (theme !== 'light' && theme !== 'dark') {
+            theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          root.dataset.theme = theme
+        } catch (e) {
+          root.dataset.theme = 'light'
+        }
+        try {
+          if (location.pathname === '/') {
+            var params = new URLSearchParams(location.search)
+            var wanted = params.get('lang') || localStorage.getItem('lang')
+            if (wanted === 'en') {
+              params.delete('lang')
+              var query = params.toString()
+              location.replace('/en/' + (query ? '?' + query : '') + location.hash)
+            }
+          }
+        } catch (e) {}
+      })()
     </script>
+    <noscript>
+      <style>
+        /* sans JS rien ne déclenche les apparitions : on montre tout (!important : la feuille du bundle passe après) */
+        html .reveal { opacity: 1 !important; transform: none !important; }
+        html .word > span { animation: none !important; }
+      </style>
+    </noscript>
     <meta
       name="description"
       content="Noa Bernier, étudiant en BUT Informatique à l'IUT d'Amiens, en alternance chez Agisoft Engineering. Agents IA, outils et apps web."

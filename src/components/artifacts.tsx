@@ -99,11 +99,11 @@ function Terminal() {
   const { t } = useLang()
   const [ref, inView] = useInView<HTMLDivElement>()
   const reduced = usePrefersReducedMotion()
-  const [line, setLine] = useState(reduced ? session.length : 0)
+  const [line, setLine] = useState(0)
   const [char, setChar] = useState(0)
 
   useEffect(() => {
-    if (!inView || line >= session.length) return
+    if (!inView || reduced || line >= session.length) return
     const current = session[line]
     if (current.kind === 'cmd' && char < current.text.length) {
       const t = setTimeout(() => setChar((c) => c + 1), 22 + Math.random() * 40)
@@ -115,9 +115,11 @@ function Terminal() {
       setChar(0)
     }, pause)
     return () => clearTimeout(t)
-  }, [inView, line, char])
+  }, [inView, reduced, line, char])
 
-  const done = line >= session.length
+  // mouvement réduit : la session s'affiche d'un bloc (valeur connue seulement après l'hydratation)
+  const shown = reduced ? session.length : line
+  const done = shown >= session.length
 
   return (
     <div
@@ -131,8 +133,8 @@ function Terminal() {
           <span key={i} className="size-2 rounded-full bg-term-fg/20" />
         ))}
       </div>
-      {session.slice(0, Math.min(line + 1, session.length)).map((l, i) => {
-        const typing = i === line && !done
+      {session.slice(0, Math.min(shown + 1, session.length)).map((l, i) => {
+        const typing = i === shown && !done
         if (l.kind === 'cmd') {
           const text = typing ? l.text.slice(0, char) : l.text
           return (

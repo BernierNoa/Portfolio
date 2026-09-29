@@ -6,7 +6,6 @@ export type Lang = 'fr' | 'en'
 
 export type LangValue = {
   lang: Lang
-  setLang: (lang: Lang) => void
   /** textes de l'interface */
   t: Strings
   /** projets, stack, parcours */
