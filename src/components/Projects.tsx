@@ -92,7 +92,7 @@ function ProjectBlock({ p, n, total }: { p: Project; n: string; total: string })
               <span className="flex flex-wrap gap-x-5 gap-y-1">
                 {p.links.map((l, k) =>
                   l.href ? (
-                    <a key={k} href={l.href} target="_blank" rel="noreferrer" className="link-rest group inline-flex items-center gap-1">
+                    <a key={k} href={l.href} target="_blank" rel="noreferrer" className="link-rest group -my-1 inline-flex items-center gap-1 py-1">
                       {l.label}
                       <Arrow className="transition-transform duration-500 ease-out-quint group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                     </a>

@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { useActiveSection, useParisTime } from '../hooks'
+import { useEffect, useRef, useState } from 'react'
+import { useActiveSection, useParisTime, usePrefersReducedMotion } from '../hooks'
 import { Container } from './ui'
 
 const sections = [
@@ -14,7 +14,17 @@ const ids = sections.map((s) => s.id)
 export function TopBar() {
   const active = useActiveSection(ids)
   const time = useParisTime()
+  const reduced = usePrefersReducedMotion()
   const [scrolled, setScrolled] = useState(false)
+  const mobileNav = useRef<HTMLUListElement>(null)
+
+  // sur mobile, garde l'onglet actif visible dans la barre défilante (sans faire bouger la page)
+  useEffect(() => {
+    const list = mobileNav.current
+    const el = list?.querySelector<HTMLElement>('[aria-current]')
+    if (!list || !el) return
+    list.scrollTo({ left: el.offsetLeft - (list.clientWidth - el.offsetWidth) / 2, behavior: reduced ? 'auto' : 'smooth' })
+  }, [active, reduced])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -30,7 +40,7 @@ export function TopBar() {
       }`}
     >
       <Container className="flex h-12 items-center justify-between gap-6">
-        <a href="#intro" className="label text-ink">
+        <a href="#intro" className="label -my-1 py-1 text-ink">
           Noa Bernier
         </a>
 
@@ -66,6 +76,38 @@ export function TopBar() {
           {time}
         </p>
       </Container>
+
+      <nav aria-label="Sections" className="md:hidden">
+        <Container>
+          <ul
+            ref={mobileNav}
+            className="-mx-5 flex overflow-x-auto px-5 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2rem),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {sections.map((s, i) => {
+              const on = s.id === active
+              return (
+                <li key={s.id} className="shrink-0">
+                  <a
+                    href={`#${s.id}`}
+                    aria-current={on ? 'true' : undefined}
+                    className={`label flex h-10 items-center gap-1.5 pr-5 transition-colors duration-300 ${
+                      on ? 'text-ink' : 'text-ink-2'
+                    }`}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full bg-signal transition-transform duration-500 ease-out-quint ${
+                        on ? 'scale-100' : 'scale-0'
+                      }`}
+                    />
+                    <span className="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                    {s.label}
+                  </a>
+                </li>
+              )
+            })}
+          </ul>
+        </Container>
+      </nav>
     </header>
   )
 }

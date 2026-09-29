@@ -261,7 +261,10 @@ function Agents() {
           return (
             <li
               key={a.id}
+              tabIndex={0}
               onMouseEnter={() => setPaused(a.id)}
+              onFocus={() => setPaused(a.id)}
+              onBlur={() => setPaused(null)}
               className="relative flex items-baseline justify-between py-2 pl-5"
             >
               <span
