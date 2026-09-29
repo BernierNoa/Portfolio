@@ -11,12 +11,20 @@ npm run lint     # oxlint
 
 ## Où modifier quoi
 
-- **Tout le texte** (projets, stack, parcours, lien GitHub) : `src/content.ts`. E-mail, LinkedIn et CV : constantes en haut de `src/components/Contact.tsx` (le lien CV reste masqué tant que `CV_READY` est à `false`, à passer à `true` une fois `public/cv-noa-bernier.pdf` ajouté).
+- **Projets, stack, parcours, liens « tiroirs »** : `src/content.fr.ts` (français) et `src/content.en.ts` (anglais, mêmes ids). Les types sont dans `src/content.ts`.
+- **Textes de l'interface** (titres, boutons, légendes, méta) : `src/i18n/ui.ts`, français et anglais côte à côte. Une clé absente d'une langue fait échouer le build.
+- **Lien GitHub** : `src/content.ts`. E-mail, LinkedIn et CV : constantes en haut de `src/components/Contact.tsx` (le lien CV reste masqué tant que `CV_READY` est à `false`, à passer à `true` une fois `public/cv-noa-bernier.pdf` ajouté).
 - Les valeurs `TODO(...)` s'affichent
   en orange pointillé sur le site tant qu'elles ne sont pas remplies.
 - **Couleurs, polices, utilitaires** (`label`, `link`, animations) : `src/index.css`.
 - **Sections** : `src/components/` (Hero, Projects, Stack, Parcours, Contact, TopBar).
 - **Visuels des projets** (log de match, terminal talos, Storyfy, routage Olympe) : `src/components/artifacts.tsx`.
+
+## Langue et thème
+
+- Langue : `?lang=en` ou `?lang=fr` dans l'URL, sinon le choix mémorisé (bouton FR/EN de la barre du haut), sinon la langue du navigateur (français, ou anglais pour toute autre langue). `<html lang>`, `<title>` et les méta suivent la langue.
+- Thème : choix mémorisé (bouton de la barre du haut), sinon le réglage du système. Le thème est posé par un petit script de `index.html` avant le premier rendu pour éviter l'éclair clair. Les couleurs sombres sont des jetons dans `src/index.css` (`:root[data-theme='dark']`).
+- Le contenu est rendu côté client : les robots qui n'exécutent pas le JavaScript ne voient que le `<title>` et les méta français de `index.html`.
 
 ## Direction
 

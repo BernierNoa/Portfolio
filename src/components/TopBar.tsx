@@ -1,17 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
-import { useActiveSection, useParisTime, usePrefersReducedMotion } from '../hooks'
+import { useActiveSection, useParisTime, usePrefersReducedMotion, useTheme } from '../hooks'
+import { useLang } from '../i18n/context'
 import { Container } from './ui'
 
-const sections = [
-  { id: 'intro', label: 'Intro' },
-  { id: 'projets', label: 'Projets' },
-  { id: 'stack', label: 'Stack' },
-  { id: 'parcours', label: 'Parcours' },
-  { id: 'contact', label: 'Contact' },
-]
-const ids = sections.map((s) => s.id)
+const ids = ['intro', 'projets', 'stack', 'parcours', 'contact']
 
+function ThemeIcon({ dark }: { dark: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.4">
+      {dark ? (
+        <>
+          <circle cx="8" cy="8" r="2.75" />
+          <path d="M8 1.5v1.75M8 12.75v1.75M1.5 8h1.75M12.75 8h1.75M3.4 3.4l1.25 1.25M11.35 11.35l1.25 1.25M3.4 12.6l1.25-1.25M11.35 4.65l1.25-1.25" />
+        </>
+      ) : (
+        <path d="M13.25 9.6A5.6 5.6 0 0 1 6.4 2.75a5.6 5.6 0 1 0 6.85 6.85Z" />
+      )}
+    </svg>
+  )
+}
 export function TopBar() {
+  const { lang, setLang, t } = useLang()
+  const [theme, toggleTheme] = useTheme()
+  const sections = ids.map((id, i) => ({
+    id,
+    label: [t.nav.intro, t.nav.projects, t.nav.stack, t.nav.background, t.nav.contact][i],
+  }))
   const active = useActiveSection(ids)
   const time = useParisTime()
   const reduced = usePrefersReducedMotion()
@@ -44,7 +58,7 @@ export function TopBar() {
           Noa Bernier
         </a>
 
-        <nav aria-label="Sections" className="hidden md:block">
+        <nav aria-label={t.nav.label} className="hidden md:block">
           <ol className="flex gap-6">
             {sections.map((s, i) => {
               const on = s.id === active
@@ -71,13 +85,32 @@ export function TopBar() {
           </ol>
         </nav>
 
-        <p className="label tabular-nums">
-          <span className="hidden sm:inline">Amiens, </span>
-          {time}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="label tabular-nums">
+            <span className="hidden sm:inline">{t.nav.city}</span>
+            {time}
+          </p>
+          <button
+            type="button"
+            lang={t.controls.langCode}
+            aria-label={t.controls.langLabel}
+            onClick={() => setLang(lang === 'fr' ? 'en' : 'fr')}
+            className="label grid h-8 min-w-8 place-items-center border border-line px-1.5 text-ink transition-colors duration-300 hover:border-ink"
+          >
+            {t.controls.langText}
+          </button>
+          <button
+            type="button"
+            aria-label={theme === 'dark' ? t.controls.toLight : t.controls.toDark}
+            onClick={toggleTheme}
+            className="grid size-8 place-items-center border border-line text-ink transition-colors duration-300 hover:border-ink"
+          >
+            <ThemeIcon dark={theme === 'dark'} />
+          </button>
+        </div>
       </Container>
 
-      <nav aria-label="Sections" className="md:hidden">
+      <nav aria-label={t.nav.label} className="md:hidden">
         <Container>
           <ul
             ref={mobileNav}

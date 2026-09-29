@@ -70,3 +70,49 @@ export function usePrefersReducedMotion() {
   const [reduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   return reduced
 }
+
+export type Theme = 'light' | 'dark'
+
+const THEME_COLORS: Record<Theme, string> = { light: '#FAFAF7', dark: '#121211' }
+
+function applyTheme(theme: Theme) {
+  document.documentElement.dataset.theme = theme
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLORS[theme])
+}
+
+/** Thème courant (posé avant le rendu par le script de index.html). Suit le système tant que rien n'est choisi. */
+export function useTheme() {
+  const [theme, setThemeState] = useState<Theme>(() =>
+    document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
+  )
+
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const onChange = (e: MediaQueryListEvent) => {
+      try {
+        if (window.localStorage.getItem('theme')) return
+      } catch {
+        /* stockage bloqué : on suit le système */
+      }
+      setThemeState(e.matches ? 'dark' : 'light')
+    }
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  const toggle = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark'
+    setThemeState(next)
+    try {
+      window.localStorage.setItem('theme', next)
+    } catch {
+      /* le choix vaut alors pour cette visite seulement */
+    }
+  }
+
+  return [theme, toggle] as const
+}

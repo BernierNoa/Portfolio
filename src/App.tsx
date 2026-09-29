@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useLang } from './i18n/context'
 import { Contact } from './components/Contact'
 import { Hero } from './components/Hero'
 import { Parcours } from './components/Parcours'
@@ -7,6 +8,8 @@ import { Stack } from './components/Stack'
 import { TopBar } from './components/TopBar'
 
 export default function App() {
+  const { t } = useLang()
+
   // Le contenu est rendu côté client : le navigateur ne défile pas vers #ancre au chargement.
   // On défile, puis on recale quand une police finit de charger (elle change la hauteur de la page),
   // sauf si le visiteur a déjà pris la main.
@@ -41,7 +44,7 @@ export default function App() {
   return (
     <>
       <a href="#projets" className="label sr-only focus:not-sr-only focus:fixed focus:top-14 focus:left-5 focus:z-50 focus:bg-paper focus:p-2">
-        Aller aux projets
+        {t.skip}
       </a>
       <TopBar />
       <main>

@@ -1,17 +1,20 @@
 import type { ReactNode } from 'react'
-import { pad, projects, type Project } from '../content'
+import { pad, type Project } from '../content'
+import { useLang } from '../i18n/context'
 import { Artifact } from './artifacts'
 import { Arrow, Container, Grid, Reveal, SectionHead, Text } from './ui'
 
 export function Projects() {
+  const { t, c } = useLang()
+  const { projects } = c
   return (
     <section id="projets" className="pt-32 md:pt-40">
       <Container>
-        <SectionHead n="02" label="Projets" aside="Classés par ordre d'importance" />
+        <SectionHead n="02" label={t.nav.projects} aside={t.projects.aside} />
         <Grid className="mt-10 mb-24 md:mb-32">
           <Reveal as="h2" className="col-span-4 text-[clamp(2rem,4.2vw,3.75rem)] leading-[1] font-medium tracking-[-0.035em] md:col-span-8">
-            Cinq projets, choisis parmi une quarantaine de repos. Ceux dont je suis le plus{' '}
-            <span className="font-serif font-normal italic">fier</span>, dans l'ordre.
+            {t.projects.h2.pre} <span className="font-serif font-normal italic">{t.projects.h2.em}</span>
+            {t.projects.h2.post}
           </Reveal>
         </Grid>
 
@@ -26,6 +29,7 @@ export function Projects() {
 }
 
 function ProjectBlock({ p, n, total }: { p: Project; n: string; total: string }) {
+  const { t } = useLang()
   return (
     <article id={p.id} className="scroll-mt-16 border-t border-line pt-4 pb-28 md:pb-40">
       <Grid>
@@ -58,7 +62,7 @@ function ProjectBlock({ p, n, total }: { p: Project; n: string; total: string })
           </Reveal>
 
           <Reveal i={2} className="mt-12">
-            <p className="label mb-3 text-ink">Sous le capot</p>
+            <p className="label mb-3 text-ink">{t.projects.underHood}</p>
             <ol className="max-w-[36em]">
               {p.highlights.map((h, k) => (
                 <li key={k} className="grid grid-cols-[2rem_1fr] border-t border-line py-3 text-[0.95rem] leading-snug">
@@ -72,13 +76,13 @@ function ProjectBlock({ p, n, total }: { p: Project; n: string; total: string })
           </Reveal>
 
           <Reveal i={3} as="dl" className="mt-12 max-w-[36em] text-[0.9rem]">
-            <Meta label="Année">
+            <Meta label={t.projects.meta.year}>
               <Text value={p.year} />
             </Meta>
-            <Meta label="Rôle">
+            <Meta label={t.projects.meta.role}>
               <Text value={p.role} />
             </Meta>
-            <Meta label="Stack">
+            <Meta label={t.projects.meta.stack}>
               <span className="font-mono text-[0.8rem] leading-relaxed text-ink-2">
                 {p.stack.map((s, k) => (
                   <span key={k}>
@@ -88,7 +92,7 @@ function ProjectBlock({ p, n, total }: { p: Project; n: string; total: string })
                 ))}
               </span>
             </Meta>
-            <Meta label="Liens">
+            <Meta label={t.projects.meta.links}>
               <span className="flex flex-wrap gap-x-5 gap-y-1">
                 {p.links.map((l, k) =>
                   l.href ? (

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { links } from '../content'
+import { useLang } from '../i18n/context'
 import { Arrow, Container, Grid, SectionHead } from './ui'
 
 // L'adresse est assemblée au rendu pour ne pas apparaître en clair dans le source.
@@ -15,6 +16,7 @@ const CV_HREF = '/cv-noa-bernier.pdf'
 type CopyState = 'idle' | 'copied' | 'failed'
 
 export function Contact() {
+  const { t } = useLang()
   const email = `${EMAIL_USER}@${EMAIL_DOMAIN}`
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -35,21 +37,21 @@ export function Contact() {
   }
 
   const external = [
-    { label: 'GitHub', srLabel: ' de Noa Bernier', href: links.github },
-    { label: 'Noa Bernier', srLabel: ' sur LinkedIn', href: LINKEDIN },
+    { label: 'GitHub', srLabel: t.contact.githubSr, href: links.github },
+    { label: t.contact.linkedin, srLabel: t.contact.linkedinSr, href: LINKEDIN },
   ]
 
   return (
     <section id="contact" className="flex min-h-[100svh] flex-col pt-32 md:pt-44">
       <Container className="flex flex-1 flex-col">
-        <SectionHead n="05" label="Contact" />
+        <SectionHead n="05" label={t.nav.contact} />
 
         <div className="mt-[12vh]">
           <p className="max-w-[28ch] text-xl leading-snug text-ink-2 md:text-2xl">
-            Une question sur un projet, une alternance, une candidature, ou juste envie de parler agents ?
+            {t.contact.lead}
           </p>
           <h2 className="mt-6 text-[clamp(3.5rem,11vw,11rem)] leading-[0.85] font-[560] tracking-[-0.045em] [font-stretch:90%]">
-            Écris-<span className="font-serif font-normal tracking-[-0.02em] italic">moi</span>.
+            {t.contact.title.pre}<span className="font-serif font-normal tracking-[-0.02em] italic">{t.contact.title.em}</span>{t.contact.title.post}
           </h2>
 
           <div className="mt-10 flex flex-wrap items-baseline gap-x-6 gap-y-3">
@@ -62,9 +64,9 @@ export function Contact() {
               className="label border border-ink px-3 py-2 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
             >
               <span aria-live="polite">
-                {copyState === 'copied' ? 'Copié ✓' : copyState === 'failed' ? 'Copie impossible, sélectionne l’adresse' : 'Copier'}
+                {copyState === 'copied' ? t.contact.copied : copyState === 'failed' ? t.contact.failed : t.contact.copy}
               </span>
-              {copyState === 'idle' && <span className="sr-only"> l’adresse e-mail</span>}
+              {copyState === 'idle' && <span className="sr-only">{t.contact.copySr}</span>}
             </button>
           </div>
         </div>
@@ -75,7 +77,7 @@ export function Contact() {
               <li key={o.href}>
                 <a href={o.href} target="_blank" rel="noopener noreferrer" className="link group inline-flex items-center gap-1.5 text-lg">
                   {o.label}
-                  <span className="sr-only">{o.srLabel} (nouvel onglet)</span>
+                  <span className="sr-only">{o.srLabel}{t.contact.newTab}</span>
                   <Arrow className="transition-transform duration-500 ease-out-quint group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
               </li>
@@ -83,18 +85,18 @@ export function Contact() {
             {CV_READY && (
               <li>
                 <a href={CV_HREF} download className="link text-lg">
-                  CV (PDF)<span className="sr-only"> de Noa Bernier, téléchargement</span>
+                  {t.contact.cv}<span className="sr-only">{t.contact.cvSr}</span>
                 </a>
               </li>
             )}
           </ul>
 
           <div className="label col-span-4 flex flex-col justify-end gap-1 md:col-span-6 md:items-end md:text-right">
-            <span>Composé en Bricolage Grotesque, parce que bon.</span>
+            <span>{t.contact.font}</span>
             <span>
               © {new Date().getFullYear()} Noa Bernier ·{' '}
               <a href="#intro" className="link text-ink">
-                Retour en haut ↑
+                {t.contact.top}
               </a>
             </span>
           </div>

@@ -1,23 +1,26 @@
 import { useState } from 'react'
-import { pad, projects, stack } from '../content'
+import { pad } from '../content'
+import { useLang } from '../i18n/context'
 import { Container, Grid, Reveal, SectionHead } from './ui'
 
-const numberOf = (id: string) => pad(projects.findIndex((p) => p.id === id) + 1)
-const nameOf = (id: string) => projects.find((p) => p.id === id)?.name ?? id
-
 export function Stack() {
+  const { t, c } = useLang()
+  const { projects, stack } = c
+  const numberOf = (id: string) => pad(projects.findIndex((p) => p.id === id) + 1)
+  const nameOf = (id: string) => projects.find((p) => p.id === id)?.name ?? id
+
   // survoler une techno assombrit les autres
   const [focus, setFocus] = useState<string | null>(null)
 
   return (
     <section id="stack" className="pt-16 md:pt-24">
       <Container>
-        <SectionHead n="03" label="Stack" aside="Les exposants renvoient aux projets" />
+        <SectionHead n="03" label={t.nav.stack} aside={t.stack.aside} />
 
         <Grid className="mt-10 mb-20 md:mb-28">
           <Reveal as="h2" className="col-span-4 text-[clamp(2rem,4.2vw,3.75rem)] leading-[1] font-medium tracking-[-0.035em] md:col-span-8">
-            Classé par fréquence d'usage réelle, pas par ce qui rend{' '}
-            <span className="font-serif font-normal italic">bien</span> sur un CV.
+            {t.stack.h2.pre} <span className="font-serif font-normal italic">{t.stack.h2.em}</span>
+            {t.stack.h2.post}
           </Reveal>
         </Grid>
 

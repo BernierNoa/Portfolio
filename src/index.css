@@ -8,12 +8,35 @@
   --color-ink-3: #73726b;
   --color-line: #e4e2db;
   --color-signal: #ff4a1c;
+  --color-card: #ffffff;
+  --color-term: #111110;
+  --color-term-fg: #fafaf7;
+  --color-term-edge: #111110;
 
   --font-sans: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Thème sombre : mêmes rôles, valeurs inversées (contrastes vérifiés ≥ 5,2:1 pour le texte) */
+:root {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-paper: #121211;
+  --color-paper-2: #1a1a18;
+  --color-ink: #f2f1ec;
+  --color-ink-2: #a9a79f;
+  --color-ink-3: #8f8d85;
+  --color-line: #2b2a27;
+  --color-signal: #ff5a2e;
+  --color-card: #1b1b19;
+  --color-term: #0a0a09;
+  --color-term-fg: #ededE8;
+  --color-term-edge: #2e2e2b;
 }
 
 @layer base {

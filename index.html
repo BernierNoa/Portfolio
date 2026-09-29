@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FAFAF7" />
+    <script>
+      // thème choisi, sinon celui du système, appliqué avant le premier rendu
+      try {
+        var t = localStorage.getItem('theme')
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = t
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
     <meta
       name="description"
       content="Noa Bernier, étudiant en BUT Informatique à l'IUT d'Amiens, en alternance chez Agisoft Engineering. Agents IA, outils et apps web."

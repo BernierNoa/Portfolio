@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { pad, projects } from '../content'
+import { pad } from '../content'
+import { useLang } from '../i18n/context'
 import { Arrow, Container, Grid, Text } from './ui'
 
 /** Découpe une phrase en mots qui montent un par un. */
@@ -21,22 +22,20 @@ function Word({ children, i, className = '' }: { children: ReactNode; i: number;
   )
 }
 
-const meta = [
-  ['Étude', 'BUT Informatique, 2e année'],
-  ['École', "IUT d'Amiens"],
-  ['Alternance', 'Agisoft Engineering'],
-  ['Cap', "École d'ingé, spé IA"],
-]
+const wordCount = (text: string) => text.split(' ').length
 
 export function Hero() {
-  const first = "Je construis les outils dont j'ai besoin."
-  const firstCount = first.split(' ').length
+  const { t, c } = useLang()
+  const { projects } = c
+  const h1 = t.hero.h1
+  const firstCount = wordCount(h1.first)
+  const beforeCount = wordCount(h1.before)
 
   return (
     <section id="intro" className="flex min-h-[100svh] flex-col pt-24 pb-10 md:pt-28">
       <Container className="flex flex-1 flex-col">
         <Grid className="gap-y-4">
-          {meta.map(([k, v]) => (
+          {t.hero.meta.map(([k, v]) => (
             <dl key={k} className="col-span-2 md:col-span-3">
               <dt className="label">{k}</dt>
               <dd className="mt-1 font-mono text-[0.8125rem] text-ink">{v}</dd>
@@ -45,29 +44,28 @@ export function Hero() {
         </Grid>
 
         <h1 className="mt-[12vh] max-w-[24ch] md:max-w-none text-[clamp(2.6rem,6.4vw,6.75rem)] leading-[0.98] font-[520] tracking-[-0.032em] [font-stretch:94%] md:mt-[11vh]">
-          <Words text={first} from={0} />
+          <Words text={h1.first} from={0} />
           <br className="hidden md:block" />
           <span className="text-ink-2">
-            <Words text="Ces temps-ci, ils ont tendance à" from={firstCount} />
-            <Word i={firstCount + 6} className="pr-[0.06em] font-serif font-normal tracking-[-0.02em] text-ink italic">
-              réfléchir
+            <Words text={h1.before} from={firstCount} />
+            <Word i={firstCount + beforeCount} className="pr-[0.06em] font-serif font-normal tracking-[-0.02em] text-ink italic">
+              {h1.emph}
             </Word>
-            <Words text="tout seuls." from={firstCount + 7} />
+            <Words text={h1.after} from={firstCount + beforeCount + 1} />
           </span>
         </h1>
 
         <Grid className="mt-auto gap-y-12 pt-20">
           <div className="col-span-4 md:col-span-5">
             <p className="max-w-[34ch] text-lg leading-[1.45] text-ink-2 md:text-xl">
-              <span className="text-ink">Moi c'est Noa Bernier.</span> Je fais surtout des agents IA et des apps web,
-              en général parce que j'en avais besoin et que ça n'existait pas encore comme je le voulais.
+              <span className="text-ink">{t.hero.introLead}</span> {t.hero.introRest}
             </p>
           </div>
 
-          <nav aria-label="Sommaire des projets" className="col-span-4 md:col-span-6 md:col-start-7">
+          <nav aria-label={t.hero.indexLabel} className="col-span-4 md:col-span-6 md:col-start-7">
             <p className="label mb-3 flex justify-between border-b border-ink pb-2 text-ink">
-              <span>Sommaire</span>
-              <span>{pad(projects.length)} projets</span>
+              <span>{t.hero.contents}</span>
+              <span>{t.hero.count(pad(projects.length))}</span>
             </p>
             <ol>
               {projects.map((p, i) => (

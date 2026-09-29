@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { Project } from '../content'
+import { useLang } from '../i18n/context'
 import { useInView, usePrefersReducedMotion } from '../hooks'
 
 function Figure({ n, caption, children }: { n: string; caption: string; children: ReactNode }) {
@@ -17,15 +18,17 @@ function Figure({ n, caption, children }: { n: string; caption: string; children
 /* ─── ElevenLogs : un log de match qu'on peut noter ─────────────────────── */
 
 function MatchLog() {
+  const { t } = useLang()
+  const l = t.art.log
   const [rating, setRating] = useState(4)
   const [hover, setHover] = useState<number | null>(null)
   const shown = hover ?? rating
 
   return (
-    <div className="border border-line bg-white p-5 md:p-6">
+    <div className="border border-line bg-card p-5 md:p-6">
       <div className="label flex justify-between">
-        <span>Ligue 2 · J8</span>
-        <span>Vu en direct</span>
+        <span>{l.league}</span>
+        <span>{l.live}</span>
       </div>
 
       <div className="mt-5 space-y-1 text-2xl font-medium tracking-[-0.02em] tabular-nums md:text-3xl">
@@ -39,13 +42,13 @@ function MatchLog() {
 
       <div className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-4">
         <div>
-          <p className="label">Ta note</p>
+          <p className="label">{l.rating}</p>
           <div className="mt-2 flex gap-1.5" onMouseLeave={() => setHover(null)}>
             {[1, 2, 3, 4, 5].map((v) => (
               <button
                 key={v}
                 type="button"
-                aria-label={`Noter ${v} sur 5`}
+                aria-label={l.rate(v)}
                 aria-pressed={rating === v}
                 onMouseEnter={() => setHover(v)}
                 onFocus={() => setHover(v)}
@@ -63,15 +66,15 @@ function MatchLog() {
           </div>
         </div>
         <div>
-          <p className="label">Homme du match</p>
-          <p className="mt-1.5 font-mono text-sm">N°10</p>
+          <p className="label">{l.motm}</p>
+          <p className="mt-1.5 font-mono text-sm">{l.motmValue}</p>
         </div>
       </div>
 
       <p className="mt-5 font-serif text-xl leading-snug text-ink-2 italic">
-        « Un match à l'ancienne, ça se joue dans les dix dernières minutes. »
+        {l.quote}
       </p>
-      <p className="label mt-4">3 potes l'ont aussi loggé</p>
+      <p className="label mt-4">{l.friends}</p>
     </div>
   )
 }
@@ -93,6 +96,7 @@ const session: Line[] = [
 ]
 
 function Terminal() {
+  const { t } = useLang()
   const [ref, inView] = useInView<HTMLDivElement>()
   const reduced = usePrefersReducedMotion()
   const [line, setLine] = useState(reduced ? session.length : 0)
@@ -119,12 +123,12 @@ function Terminal() {
     <div
       ref={ref}
       role="group"
-      aria-label="Exemple de session talos"
-      className="min-h-[21rem] bg-ink p-5 font-mono text-[0.78rem] leading-relaxed text-paper md:p-6"
+      aria-label={t.art.terminalLabel}
+      className="min-h-[21rem] bg-term p-5 font-mono text-[0.78rem] leading-relaxed text-term-fg shadow-[0_0_0_1px_var(--color-term-edge)] md:p-6"
     >
       <div className="mb-4 flex gap-1.5" aria-hidden>
         {[0, 1, 2].map((i) => (
-          <span key={i} className="size-2 rounded-full bg-paper/20" />
+          <span key={i} className="size-2 rounded-full bg-term-fg/20" />
         ))}
       </div>
       {session.slice(0, Math.min(line + 1, session.length)).map((l, i) => {
@@ -140,7 +144,7 @@ function Terminal() {
           )
         }
         if (typing) return null
-        const tone = l.kind === 'dim' ? 'text-paper/45' : l.kind === 'tool' ? 'text-paper/60' : 'text-paper'
+        const tone = l.kind === 'dim' ? 'text-term-fg/45' : l.kind === 'tool' ? 'text-term-fg/60' : 'text-term-fg'
         return (
           <p key={i} className={tone}>
             {l.text}
@@ -154,39 +158,14 @@ function Terminal() {
 
 /* ─── Storyfy : paramètres → début d'histoire ──────────────────────────── */
 
-const stories = [
-  {
-    params: [
-      ['Thème', 'une forêt, la nuit'],
-      ['Perso', 'un renard insomniaque'],
-      ['Ton', 'doux'],
-    ],
-    text: "Il était une fois un renard qui connaissait chaque étoile par son prénom, parce qu'il n'avait jamais réussi à dormir…",
-  },
-  {
-    params: [
-      ['Thème', 'la mer'],
-      ['Perso', 'un phare qui a peur du noir'],
-      ['Ton', 'drôle'],
-    ],
-    text: 'Pour un phare, avoir peur du noir, c’est franchement mal tombé. Et pourtant, chaque soir à 19 h…',
-  },
-  {
-    params: [
-      ['Thème', 'l’espace'],
-      ['Perso', 'une astronaute de 8 ans'],
-      ['Ton', 'aventure'],
-    ],
-    text: 'Le compte à rebours affichait 3, 2, 1… et Lina réalisa qu’elle avait oublié son doudou sur Terre.',
-  },
-]
-
 function Story() {
+  const { t } = useLang()
+  const { items, another } = t.art.stories
   const [i, setI] = useState(0)
-  const s = stories[i]
+  const s = items[i]
 
   return (
-    <div className="border border-line bg-white p-5 md:p-6">
+    <div className="border border-line bg-card p-5 md:p-6">
       <dl className="space-y-2">
         {s.params.map(([k, v]) => (
           <div key={k} className="grid grid-cols-[5rem_1fr] items-baseline border-b border-line pb-2">
@@ -200,10 +179,10 @@ function Story() {
       </p>
       <button
         type="button"
-        onClick={() => setI((n) => (n + 1) % stories.length)}
+        onClick={() => setI((n) => (n + 1) % items.length)}
         className="label group mt-4 inline-flex items-center gap-2 border border-ink px-3 py-2 text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
       >
-        Autre histoire
+        {another}
         <span className="transition-transform duration-500 ease-out-quint group-hover:rotate-180">↻</span>
       </button>
     </div>
@@ -212,24 +191,9 @@ function Story() {
 
 /* ─── Olympe : le routage d'Ouranos, en direct ─────────────────────────── */
 
-const agents = [
-  { id: 'athena', name: 'Athéna', role: 'mes projets perso' },
-  { id: 'iris', name: 'Iris', role: 'mails, agenda, Notion' },
-  { id: 'helios', name: 'Helios', role: 'admin du NAS' },
-  { id: 'promethee', name: 'Prométhée', role: 'tâches de dev → PR' },
-  { id: 'pheme', name: 'Phémé', role: 'contenu réseaux' },
-  { id: 'ploutos', name: 'Ploutos', role: 'pas encore réveillé' },
-]
-
-const messages = [
-  { text: 'lance une sauvegarde', to: 'helios' },
-  { text: 'athena: je priorise quoi cette semaine ?', to: 'athena' },
-  { text: 'iris: résume mes mails du jour', to: 'iris' },
-  { text: 'approve 12', to: 'promethee' },
-  { text: 'un post pour la sortie de la v2', to: 'pheme' },
-]
-
 function Agents() {
+  const { t } = useLang()
+  const { list: agents, messages, orchestrator } = t.art.agents
   const [ref, inView] = useInView<HTMLDivElement>()
   const reduced = usePrefersReducedMotion()
   const [m, setM] = useState(0)
@@ -237,14 +201,14 @@ function Agents() {
 
   useEffect(() => {
     if (!inView || reduced || paused) return
-    const t = setInterval(() => setM((x) => (x + 1) % messages.length), 2600)
-    return () => clearInterval(t)
-  }, [inView, reduced, paused])
+    const id = setInterval(() => setM((x) => (x + 1) % messages.length), 2600)
+    return () => clearInterval(id)
+  }, [inView, reduced, paused, messages.length])
 
   const target = paused ?? messages[m].to
 
   return (
-    <div ref={ref} className="border border-line bg-white p-5 md:p-6">
+    <div ref={ref} className="border border-line bg-card p-5 md:p-6">
       <p className="label">Telegram</p>
       <p key={paused ? 'paused' : m} className="story-in mt-1 min-h-7 font-mono text-sm">
         {paused ? '·' : `« ${messages[m].text} »`}
@@ -252,7 +216,7 @@ function Agents() {
 
       <div className="mt-4 flex items-baseline justify-between border-y border-ink py-2">
         <span className="text-lg font-medium">Ouranos</span>
-        <span className="label">orchestrateur</span>
+        <span className="label">{orchestrator}</span>
       </div>
 
       <ul className="relative ml-2 border-l border-line" onMouseLeave={() => setPaused(null)}>
@@ -298,34 +262,36 @@ function PlaceholderVisual() {
 }
 
 export function Artifact({ kind, n }: { kind: Project['artifact']; n: string }) {
+  const { t } = useLang()
+  const cap = t.art.captions
   switch (kind) {
     case 'log':
       return (
-        <Figure n={n} caption="Un log de match (maquette). Tu peux le noter.">
+        <Figure n={n} caption={cap.log}>
           <MatchLog />
         </Figure>
       )
     case 'terminal':
       return (
-        <Figure n={n} caption="Une session type, sorties reprises du README.">
+        <Figure n={n} caption={cap.terminal}>
           <Terminal />
         </Figure>
       )
     case 'story':
       return (
-        <Figure n={n} caption="Paramètres → début d'histoire (textes d'exemple).">
+        <Figure n={n} caption={cap.story}>
           <Story />
         </Figure>
       )
     case 'agents':
       return (
-        <Figure n={n} caption="Qui reçoit quoi. Survole un agent pour figer le routage.">
+        <Figure n={n} caption={cap.agents}>
           <Agents />
         </Figure>
       )
     case 'placeholder':
       return (
-        <Figure n={n} caption="À venir.">
+        <Figure n={n} caption={cap.placeholder}>
           <PlaceholderVisual />
         </Figure>
       )
