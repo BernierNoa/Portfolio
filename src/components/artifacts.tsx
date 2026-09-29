@@ -118,6 +118,7 @@ function Terminal() {
   return (
     <div
       ref={ref}
+      role="group"
       aria-label="Exemple de session talos"
       className="min-h-[21rem] bg-ink p-5 font-mono text-[0.78rem] leading-relaxed text-paper md:p-6"
     >

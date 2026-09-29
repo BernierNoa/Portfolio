@@ -11,7 +11,8 @@ npm run lint     # oxlint
 
 ## Où modifier quoi
 
-- **Tout le texte** (projets, stack, parcours, liens) : `src/content.ts`. Les valeurs `TODO(...)` s'affichent
+- **Tout le texte** (projets, stack, parcours, lien GitHub) : `src/content.ts`. E-mail, LinkedIn et CV : constantes en haut de `src/components/Contact.tsx` (le lien CV reste masqué tant que `CV_READY` est à `false`, à passer à `true` une fois `public/cv-noa-bernier.pdf` ajouté).
+- Les valeurs `TODO(...)` s'affichent
   en orange pointillé sur le site tant qu'elles ne sont pas remplies.
 - **Couleurs, polices, utilitaires** (`label`, `link`, animations) : `src/index.css`.
 - **Sections** : `src/components/` (Hero, Projects, Stack, Parcours, Contact, TopBar).

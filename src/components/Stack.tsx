@@ -36,6 +36,8 @@ export function Stack() {
                       <li
                         key={item.name}
                         onMouseEnter={() => setFocus(item.name)}
+                        onFocus={() => setFocus(item.name)}
+                        onBlur={() => setFocus(null)}
                         className={`text-[clamp(1.6rem,3vw,2.6rem)] leading-[1.15] font-[480] tracking-[-0.03em] transition-colors duration-300 ${
                           dim ? 'text-ink-3/60' : 'text-ink'
                         }`}
