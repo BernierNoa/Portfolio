@@ -2,6 +2,8 @@
 
 Site perso, une seule page. React + Vite + TypeScript + Tailwind v4.
 
+Prérequis : Node.js compatible avec Vite verrouillé (`^20.19.0 || >=22.12.0`) et npm.
+
 ```bash
 npm install
 npm run dev      # dev server
